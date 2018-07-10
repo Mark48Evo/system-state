@@ -4,20 +4,19 @@ import RabbitMQPubSub from '@mark48evo/rabbitmq-pubsub';
 
 const debug = Debug('system:state');
 
-const config = {
+const defaultConfig = {
   exchangeName: process.env.EXCHANGE_NAME || 'system_state',
   queueNamePrefix: process.env.QUEUE_NAME_PREFIX || 'system_state',
 };
 
 export default class SystemState extends EventEmitter {
-  constructor(redis, rabbitmqChannel) {
+  constructor(redis, rabbitmqChannel, options = {}) {
     super();
 
+    const config = { ...defaultConfig, ...options };
+
     this.redis = redis;
-    this.pubsub = new RabbitMQPubSub(rabbitmqChannel, {
-      exchangeName: config.exchangeName,
-      queueNamePrefix: config.queueNamePrefix,
-    });
+    this.pubsub = new RabbitMQPubSub(rabbitmqChannel, config);
   }
 
   async setup() {
